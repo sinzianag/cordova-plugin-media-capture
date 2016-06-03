@@ -223,9 +223,15 @@ public class Capture extends CordovaPlugin {
      * Sets up an intent to capture audio.  Result handled by onActivityResult()
      */
     private void captureAudio(Request req) {
-        Intent intent = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-
-        this.cordova.startActivityForResult((CordovaPlugin) this, intent, req.requestCode);
+    	boolean needExternalStoragePermission =
+            !PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        
+        if (needExternalStoragePermission) {
+        	PermissionHelper.requestPermission(this, req.requestCode, Manifest.permission.READ_EXTERNAL_STORAGE);
+        } else {
+        	Intent intent = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+        	this.cordova.startActivityForResult((CordovaPlugin) this, intent, req.requestCode);
+        }
     }
 
     private String getTempDirectoryPath() {
